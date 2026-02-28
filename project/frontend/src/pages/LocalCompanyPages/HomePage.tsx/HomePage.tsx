@@ -4,16 +4,8 @@ import CreateAttraction from "../../AdminPages/CreateAttraction/CreateAttraction
 import Loader from "../../../components/Loader/Loader";
 import { AppContext } from "../../../context/AppContext";
 import AttractionDetailsPage from "../../Explore/AttractionDetailsPage/AttractionsDetailsPage";
-type Attraction = {
-  id: string;
-  name: string;
-  description: string;
-  photos: string;
-  longitude: string;
-  latitude: string;
-  category: string;
-  reviews: [];
-};
+import { Attraction } from "../../../types/Attraction";
+import BASE_URL from "../../../config/api";
 
 const HomePage: React.FC = () => {
   const [hasCreatedAttraction, setHasCreatedAttraction] = useState<
@@ -29,7 +21,7 @@ const HomePage: React.FC = () => {
           hasCreatedAttraction: boolean;
           attraction: Attraction | null;
         }>(
-          `http://localhost:5241/api/tourist_attractions/myAttraction/${userId}`
+          `${BASE_URL}/tourist_attractions/myAttraction/${userId}`
         );
 
         setHasCreatedAttraction(response.data.hasCreatedAttraction);

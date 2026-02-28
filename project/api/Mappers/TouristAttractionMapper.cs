@@ -16,18 +16,20 @@ namespace api.Mappers
                     Description = touristAttractionModel.Description,
                     Longitude = touristAttractionModel.Longitude,
                     Latitude = touristAttractionModel.Latitude,
-                    Photos = touristAttractionModel.Photos,
+                    // Photos = touristAttractionModel.Photos,
                     Category = touristAttractionModel.Category,
                     Reviews = touristAttractionModel.Reviews.Select(r => r.ToReviewDto()).ToList(),
+                           Photos = string.IsNullOrEmpty(touristAttractionModel.Photos)
+            ? new List<string>()
+            : touristAttractionModel.Photos.Split(",").ToList()
                 };
         }
         public static TouristAttraction ToAttractionFromDto(this CreateAttractionRequestDto touristAttractionDto){
             return new TouristAttraction{
                 Name = touristAttractionDto.Name,
                 Description = touristAttractionDto.Description,
-               Longitude = touristAttractionDto.Longitude,
-                    Latitude = touristAttractionDto.Latitude,
-        
+                Longitude = touristAttractionDto.Longitude,
+                Latitude = touristAttractionDto.Latitude,
                 Category = touristAttractionDto.Category
             };
         }

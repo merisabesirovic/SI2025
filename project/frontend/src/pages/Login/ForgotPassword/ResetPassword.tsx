@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import BASE_URL from "../../../config/api";
 import styled from "styled-components";
@@ -15,10 +15,18 @@ const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
+  const [searchParams] = useSearchParams();
   const isPasswordValid = (password: string) => {
     const passwordRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
     return passwordRegex.test(password);
   };
+  useEffect(() => {
+    const emailParam = searchParams.get("email");
+    const tokenParam = searchParams.get("token");
+    if (emailParam) setEmail(emailParam);
+    if (tokenParam) setToken(tokenParam);
+  }, [searchParams]);
+
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -104,11 +112,6 @@ const ResetPassword = () => {
           Resetuj
         </button>
       </form>
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        hideProgressBar
-      />
     </StyledWrapper>
   );
 };

@@ -1,4 +1,5 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import styled from "styled-components";
 
 interface ModalProps {
@@ -16,7 +17,7 @@ const Modal: React.FC<ModalProps> = ({
   onAction,
   onClose,
 }) => {
-  return (
+  return createPortal(
     <StyledOverlay>
       <StyledWrapper>
         <div className="card">
@@ -39,7 +40,8 @@ const Modal: React.FC<ModalProps> = ({
           </button>
         </div>
       </StyledWrapper>
-    </StyledOverlay>
+    </StyledOverlay>,
+    document.body
   );
 };
 

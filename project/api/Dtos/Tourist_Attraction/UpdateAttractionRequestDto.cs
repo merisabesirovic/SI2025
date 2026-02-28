@@ -26,5 +26,9 @@ namespace api.Dtos.Tourist_Attraction
         public string Latitude {get;set;} = string.Empty;
          
         public string Category { get; set; } = string.Empty;
+        
+        public List<IFormFile>? NewImages { get; set; }
+
+        public List<string>? ImagesToDelete { get; set; }
     }
 }

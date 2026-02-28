@@ -2,7 +2,6 @@ import React, { useContext, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 import BASE_URL from "../../config/api";
 import { AppContext } from "../../context/AppContext";
@@ -124,11 +123,6 @@ const Login = () => {
           Zaboravili ste lozinku?
         </p>
       </form>
-      <ToastContainer
-        position="bottom-center"
-        autoClose={5000}
-        hideProgressBar
-      />
     </StyledWrapper>
   );
 };

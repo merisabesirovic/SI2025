@@ -5,6 +5,7 @@ import { FaTrash, FaEdit } from "react-icons/fa";
 import { AppContext } from "../../../context/AppContext";
 import Modal from "../../../components/Modal/Modal";
 import Loader from "../../../components/Loader/Loader";
+import BASE_URL from "../../../config/api";
 
 type User = {
   id: string;
@@ -30,7 +31,7 @@ const AdminHomePage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const usersPerPage = 5;
 
-  const apiBaseUrl = "http://localhost:5241/api/users";
+  const apiBaseUrl = `${BASE_URL}/users`;
 
   useEffect(() => {
     const fetchUsers = async () => {

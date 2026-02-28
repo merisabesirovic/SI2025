@@ -3,10 +3,9 @@ import { AppContext } from "../../../context/AppContext";
 import FavoritesCard from "../FavoritesCard/FavoritesCard";
 import axios from "axios";
 import "./PortfolioFavorites.css";
-import Carousel from "react-multi-carousel";
-import "react-multi-carousel/lib/styles.css";
 import Modal from "../../Modal/Modal";
 import Loader from "../../Loader/Loader";
+import BASE_URL from "../../../config/api";
 
 type PortfolioItem = {
   id: string;
@@ -24,32 +23,13 @@ const PortfolioFavorites = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [selectedItemName, setSelectedItemName] = useState<string | null>(null);
 
-  const responsive = {
-    superLargeDesktop: {
-      breakpoint: { max: 4000, min: 3000 },
-      items: 4,
-    },
-    desktop: {
-      breakpoint: { max: 3000, min: 1024 },
-      items: 2,
-    },
-    tablet: {
-      breakpoint: { max: 1024, min: 464 },
-      items: 1,
-    },
-    mobile: {
-      breakpoint: { max: 464, min: 0 },
-      items: 1,
-    },
-  };
-
   useEffect(() => {
     const fetchPortfolio = async () => {
       if (!token || !userId) return;
 
       try {
         const response = await axios.get(
-          `http://localhost:5241/api/portfolio`,
+          `${BASE_URL}/portfolio`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -75,7 +55,7 @@ const PortfolioFavorites = () => {
     if (!selectedItemName || !token) return;
 
     try {
-      await axios.delete(`http://localhost:5241/api/portfolio`, {
+      await axios.delete(`${BASE_URL}/portfolio`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -108,22 +88,12 @@ const PortfolioFavorites = () => {
   return (
     <div className="favs">
       <h2>Mesta koja ste sačuvali u listu omiljeni</h2>
-      <Carousel
-        swipeable={true}
-        showDots={true}
-        responsive={responsive}
-        ssr={true}
-        arrows={true}
-        infinite={true}
-        keyBoardControl={true}
-        containerClass="carousel-container"
-        itemClass="carousel-item-padding-40-px"
-      >
+      <div className="favorites-grid">
         {portfolio && portfolio.length > 0 ? (
           portfolio.map((item) => {
             const [firstPhoto] = item.photos.split(",");
             return (
-              <div key={item.id} className="carousel-item">
+              <div key={item.id} className="favorite-grid-item">
                 <FavoritesCard
                   key={item.id}
                   id={item.id}
@@ -139,9 +109,9 @@ const PortfolioFavorites = () => {
             );
           })
         ) : (
-          <p style={{ width: "700px" }}>Vaša lista omiljenih je prazna.</p>
+          <p className="favorites-empty">Vasa lista omiljenih je prazna.</p>
         )}
-      </Carousel>
+      </div>
       {modalOpen && (
         <Modal
           onAction={handleDelete}

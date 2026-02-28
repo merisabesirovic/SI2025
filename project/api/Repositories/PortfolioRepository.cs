@@ -45,7 +45,7 @@ namespace api.Repositories
                 Category = attraction.TouristAttraction.Category,
                 Latitude = attraction.TouristAttraction.Latitude,
                 Longitude = attraction.TouristAttraction.Longitude,
-                Photos = attraction.TouristAttraction.Photos
+                // Photos = attraction.TouristAttraction.Photos
             }).ToListAsync();
         }
         

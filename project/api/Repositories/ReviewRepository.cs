@@ -37,6 +37,12 @@ namespace api.Repositories
             return reviewModel;
         }
 
+        public Task<bool> ExistsForUserAsync(string userId, int attractionId)
+        {
+            return _context.Reviews.AnyAsync(r =>
+                r.UserId == userId && r.TouristAttractionId == attractionId);
+        }
+
         public async Task<List<Review>> GetAllAsync(ReviewQueryObject queryObject)
         {
             var reviews =  _context.Reviews.Include(a => a.User).AsQueryable();

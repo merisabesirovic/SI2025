@@ -4,19 +4,16 @@ import axios from "axios";
 import Card from "../../../components/Card/Card";
 import "./AttractionsPage.css";
 import Loader from "../../../components/Loader/Loader";
+import { Review } from "../../../types/Attraction";
+import BASE_URL from "../../../config/api";
 
-type Review = {
-  id: string;
-  rating: number;
-  comment: string;
-  createdOn: string;
-};
+
 
 type Attraction = {
   id: string;
   name: string;
   description: string;
-  photos: string;
+  photos: Array<string>;
   reviews?: Review[]; // Reviews might be undefined
   averageRating?: number;
   createdOn: string; // For sorting by "Najnovije" and "Najstarije"
@@ -37,7 +34,7 @@ const AttractionsPage = () => {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `http://localhost:5241/api/tourist_attractions?Category=${category}`
+          `${BASE_URL}/tourist_attractions?Category=${category}`
         );
         const attractionsWithRatings = response.data.map(
           (attraction: Attraction) => {
@@ -126,12 +123,12 @@ const AttractionsPage = () => {
       </div>
       <div className="attractions_container">
         {sortedAttractions.map((attraction) => {
-          const [firstPhoto] = attraction.photos.split(",");
+          const firstPhoto = attraction.photos[0];
           return (
             <Card
               key={attraction.id}
               id={attraction.id}
-              image={firstPhoto.trim()}
+              image={firstPhoto}
               title={attraction.name}
               description={attraction.description.slice(0, 60).concat("...")}
               show={false}

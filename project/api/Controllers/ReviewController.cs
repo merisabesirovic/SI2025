@@ -60,6 +60,10 @@ namespace api.Controllers
             var username = User.GetUsername();
             var appUser = await _usermanager.FindByNameAsync(username);
 
+            if (await _reviewRepo.ExistsForUserAsync(appUser.Id, attractionId))
+            {
+                return Conflict("You have already submitted a review for this attraction.");
+            }
 
             var reviewModel = reviewDto.ToReviewFromCreate(attractionId);
             reviewModel.UserId = appUser.Id;

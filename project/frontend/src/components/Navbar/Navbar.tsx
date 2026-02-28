@@ -88,6 +88,9 @@ const Navbar: React.FC = () => {
                 <NavLink to={"/home_local"} onClick={closeMenu}>
                   <button>Pregled stranice</button>
                 </NavLink>
+                <NavLink to={"/local_company/stats"} onClick={closeMenu}>
+                  <button>Statistika</button>
+                </NavLink>
                 <NavLink to={"/user_home"} onClick={closeMenu}>
                   <button>Moj profil</button>
                 </NavLink>

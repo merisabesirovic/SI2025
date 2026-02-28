@@ -13,5 +13,6 @@ namespace api.Interfaces
         Task <Review?> GetByIdAsync(int id);
         Task <Review> CreateAsync(Review reviewModel);
         Task <Review?> DeleteAsync(int id);
+        Task<bool> ExistsForUserAsync(string userId, int attractionId);
     }
 }

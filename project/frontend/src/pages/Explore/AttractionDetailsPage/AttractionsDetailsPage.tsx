@@ -1,13 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import "./AttractionsDetailsPage.css";
 import { motion } from "framer-motion";
-import { FaMapLocationDot } from "react-icons/fa6";
+import { FaMapLocationDot, FaStar } from "react-icons/fa6";
 import Reviews from "../Reviews/Reviews";
 import { FaPencilAlt } from "react-icons/fa";
 
@@ -15,19 +14,11 @@ import Loader from "../../../components/Loader/Loader";
 import AddToFavorites from "../AddToFavorites/AddToFavorites";
 import EditModal from "../../../components/Modal/EditModal";
 import { AppContext } from "../../../context/AppContext";
-type Attraction = {
-  id: string;
-  name: string;
-  description: string;
-  photos: string;
-  longitude: string;
-  latitude: string;
-  category: string;
-  reviews: [];
-};
+import { Attraction } from "../../../types/Attraction";
+import BASE_URL from "../../../config/api";
+
 interface AttractionDetailsPageProps {
   propAttraction?: Attraction | null;
-
   attractionId?: string;
 }
 
@@ -74,7 +65,7 @@ const AttractionDetailsPage: React.FC<AttractionDetailsPageProps> = ({
         try {
           setIsLoading(true);
           const response = await axios.get(
-            `http://localhost:5241/api/tourist_attractions/${id}`
+            `${BASE_URL}/tourist_attractions/${id}`
           );
           setAttraction(response.data);
         } catch (error) {
@@ -89,6 +80,7 @@ const AttractionDetailsPage: React.FC<AttractionDetailsPageProps> = ({
       setIsLoading(false);
     }
   }, [id, propAttraction]);
+
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -112,30 +104,39 @@ const AttractionDetailsPage: React.FC<AttractionDetailsPageProps> = ({
       setIsModalOpen(true);
     }
   };
+
   const calculateAverageRating = (reviews: Array<{ rating: number }>) => {
     if (reviews.length === 0) return 0;
     const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
     return totalRating / reviews.length;
   };
 
-  const handleUpdateAttraction = async () => {
+  const handleUpdateAttraction = async (
+    imagesToDelete: string[],
+    newImages: File[]
+  ) => {
     try {
-      const updatedAttraction = {
-        id,
-        name,
-        description,
-        longitude,
-        latitude,
-        category,
-      };
+      console.log("tr");
+      const formData = new FormData();
+
+      formData.append("name", name);
+      formData.append("description", description);
+      formData.append("longitude", longitude);
+      formData.append("latitude", latitude);
+      formData.append("category", category);
+
+      imagesToDelete.forEach((url) => formData.append("ImagesToDelete", url));
+
+      newImages.forEach((file) => formData.append("NewImages", file));
 
       const response = await axios.put(
-        `http://localhost:5241/api/tourist_attractions/${propAttraction?.id}`,
-        updatedAttraction
+        `${BASE_URL}/tourist_attractions/${attraction?.id}`,
+        formData
       );
 
       setAttraction(response.data);
       setIsModalOpen(false);
+      toast.success("Atrakcija uspešno ažurirana!");
     } catch (error) {
       console.error("Error updating attraction:", error);
       toast.error("Došlo je do greške pri ažuriranju atrakcije.");
@@ -154,80 +155,175 @@ const AttractionDetailsPage: React.FC<AttractionDetailsPageProps> = ({
     return <div>Nema dodatnih informacija o ovoj stranici.</div>;
   }
 
-  const photosArray = attraction.photos.split(",");
-  const averageRating = calculateAverageRating(attraction.reviews);
+  const photosArray = attraction.photos;
+  const averageRating = calculateAverageRating(attraction.reviews ?? []);
+
   return (
-    <motion.div
-      className="attraction-details"
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-    >
-      <div
-        className="background-image"
-        style={{
-          backgroundImage: `url(${photosArray[0]})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          position: "relative",
-          height: "80vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexDirection: "column",
-        }}
+    <div className="attraction-details-wrapper">
+      {/* Hero Section */}
+      <motion.div
+        className="hero-section"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
       >
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background:
-              "linear-gradient(to bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 1))",
-            zIndex: 1,
-          }}
-        ></div>
-
-        <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
-          <motion.p
-            className="attraction-title"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
-            style={{ fontSize: "2rem", fontWeight: "bold", color: "#000" }}
-          >
-            {attraction.name}
-          </motion.p>
-          <p className="description" style={{marginLeft:"20px", marginRight:"20px"}}>{attraction.description}</p>
+        <div className="hero-image-container">
+          <img
+            src={photosArray[0]}
+            alt={attraction.name}
+            className="hero-image"
+          />
+          <div className="hero-overlay"></div>
         </div>
-      </div>
 
-      {adminOrCompany && (
-        <div>
-          {userRole === "Local_company" && (
-            <button onClick={openEditModal} className="edit-button">
-              Uredi Atrakciju <FaPencilAlt size={18} />
+        <motion.div
+          className="hero-content"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          <h1 className="hero-title">{attraction.name}</h1>
+          
+          {averageRating > 0 && (
+            <div className="hero-rating">
+              <FaStar className="star-icon" />
+              <span className="rating-value">{averageRating.toFixed(1)}</span>
+              <span className="rating-count">
+                ({attraction.reviews?.length || 0} recenzija)
+              </span>
+            </div>
+          )}
+
+          {adminOrCompany && (
+            <button onClick={openEditModal} className="edit-button-hero">
+              <FaPencilAlt /> Uredi Atrakciju
             </button>
           )}
-          <div className="average-rating">
-            <h3 style={{ padding: "20px", marginTop: "10px" }}>
-              Prosečna ocena: {averageRating.toFixed(2)}{" "}
-              <span className="star-rating">★</span>
-            </h3>
-          </div>
-        </div>
-      )}
+        </motion.div>
+      </motion.div>
 
-      {isModalOpen && (
+      {/* Main Content */}
+      <div className="content-container">
+        {/* About Section */}
+        <motion.section
+          className="about-section"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <div className="section-header">
+            <h2 className="section-title">O Atrakciji</h2>
+            <div className="title-underline"></div>
+          </div>
+          <p className="description-text">{attraction.description}</p>
+        </motion.section>
+
+        {/* Gallery Section */}
+        <motion.section
+          className="gallery-section"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <div className="section-header">
+            <h2 className="section-title">Galerija</h2>
+            <div className="title-underline"></div>
+          </div>
+
+          <div className="carousel-wrapper">
+            <Carousel
+              swipeable={true}
+              draggable={true}
+              showDots={true}
+              responsive={responsive}
+              ssr={true}
+              infinite={true}
+              autoPlay={true}
+              autoPlaySpeed={3000}
+              keyBoardControl={true}
+              customTransition="transform 500ms ease-in-out"
+              transitionDuration={500}
+              containerClass="carousel-container"
+              dotListClass="custom-dot-list"
+              itemClass="carousel-item-padding"
+            >
+              {photosArray.map((photo, index) => (
+                <div key={index} className="gallery-item">
+                  <img src={photo} alt={`${attraction.name} ${index + 1}`} />
+                </div>
+              ))}
+            </Carousel>
+          </div>
+        </motion.section>
+
+        {/* Location Section */}
+        <motion.section
+          className="location-section"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+        >
+          <div className="section-header">
+            <h2 className="section-title">Lokacija</h2>
+            <div className="title-underline"></div>
+          </div>
+
+          <div className="map-container">
+            <iframe
+              className="map-iframe"
+              src={`https://maps.google.com/maps?&hl=en&q=${attraction.longitude},${attraction.latitude}&t=h&z=12&ie=UTF8&iwloc=near&output=embed`}
+              title="Google Map"
+              loading="lazy"
+            ></iframe>
+
+            <a
+              href={`https://www.google.com/maps/dir/${location.lat},${location.lng}/${attraction.longitude},${attraction.latitude}/?entry=ttu`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="directions-button"
+            >
+              <FaMapLocationDot className="button-icon" />
+              <span>Prikaži Putanju</span>
+            </a>
+          </div>
+        </motion.section>
+
+        {/* Reviews Section */}
+        <motion.section
+          className="reviews-section"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+        >
+          <Reviews
+            attractionId={id!}
+            initialReviews={attraction.reviews}
+            showForm={adminOrCompany}
+          />
+        </motion.section>
+
+        {/* Add to Favorites */}
+        {!adminOrCompany && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+          >
+            <AddToFavorites attractionName={attraction.name} />
+          </motion.div>
+        )}
+      </div>
+
+      {/* Edit Modal */}
+      {isModalOpen && attraction && (
         <EditModal
-          title="Izmena Atrakcije"
+          title="Izmena atrakcije"
           name={name}
           description={description}
           longitude={longitude}
           latitude={latitude}
           category={category}
+          photos={attraction.photos}
           onSave={handleUpdateAttraction}
           onClose={() => setIsModalOpen(false)}
           setName={setName}
@@ -237,59 +333,8 @@ const AttractionDetailsPage: React.FC<AttractionDetailsPageProps> = ({
           setCategory={setCategory}
         />
       )}
-      <div className="carousel">
-        <Carousel
-          swipeable={false}
-          showDots={true}
-          responsive={responsive}
-          ssr={true}
-          infinite={true}
-          keyBoardControl={true}
-        >
-          {photosArray.map((photo, index) => (
-            <div key={index} className="carousel-item">
-              <img
-                src={photo}
-                alt={`Slide ${index}`}
-                style={{
-                  width: "100%",
-                  maxHeight: "300px",
-                  objectFit: "cover",
-                  marginBottom: "20px",
-                }}
-              />
-            </div>
-          ))}
-        </Carousel>
-      </div>
-      <div className="iframe-container">
-        <iframe
-          className="gmap_iframe"
-          src={`https://maps.google.com/maps?&hl=en&q=${attraction.longitude},${attraction.latitude}&t=h&z=12&ie=UTF8&iwloc=near&output=embed`}
-          title="Google Map"
-        ></iframe>
-
-        <a 
-          href={`https://www.google.com/maps/dir/${location.lat},${location.lng}/${attraction.longitude},${attraction.latitude}/?entry=ttu`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Prikaži putanju <FaMapLocationDot />
-        </a>
-      </div>
-      <ToastContainer />
-
-      <Reviews
-        attractionId={id!}
-        initialReviews={attraction.reviews}
-        showForm={adminOrCompany}
-      />
-      {adminOrCompany ? (
-        <></>
-      ) : (
-        <AddToFavorites attractionName={attraction.name} />
-      )}
-    </motion.div>
+    </div>
   );
 };
+
 export default AttractionDetailsPage;

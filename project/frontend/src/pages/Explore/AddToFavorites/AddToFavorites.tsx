@@ -3,8 +3,7 @@ import axios from "axios";
 import { GrFavorite } from "react-icons/gr";
 import { styled } from "@mui/material/styles";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer } from "react-toastify";
+import BASE_URL from "../../../config/api";
 
 type AddToFavoritesProps = {
   attractionName: string;
@@ -21,7 +20,7 @@ const AddToFavorites = ({ attractionName }: AddToFavoritesProps) => {
 
     try {
       const response = await axios.post(
-        `http://localhost:5241/api/portfolio?name=${encodeURIComponent(
+        `${BASE_URL}/portfolio?name=${encodeURIComponent(
           attractionName
         )}`,
         null,
@@ -42,9 +41,9 @@ const AddToFavorites = ({ attractionName }: AddToFavoritesProps) => {
   return (
     <StyledWrapper>
       <div>
-        <h1 className="form-title">Već ste bili ovde?</h1>
+        <h2 className="form-title">Već ste bili ovde ili želite da posetite ovo mesto?</h2>
         <p>
-          Ukoliko želite da posetite ovo mesto ponovo, dodajte ga u favorite.
+          Dodajte ga u favorite, a mi ćemo vam predložiti još ovakvih mesta.
         </p>
         {token ? (
           <button className="submit" onClick={handleAddToFavorites}>
@@ -55,11 +54,6 @@ const AddToFavorites = ({ attractionName }: AddToFavoritesProps) => {
             <p>Morate biti prijavljeni da biste dodali u favorite.</p>
           </div>
         )}
-        <ToastContainer
-          position="bottom-right"
-          autoClose={5000}
-          hideProgressBar
-        />
       </div>
     </StyledWrapper>
   );

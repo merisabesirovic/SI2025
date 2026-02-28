@@ -7,6 +7,7 @@ import axios from "axios";
 import Modal from "../Modal/Modal";
 import "./Card.css";
 import EditModal from "../Modal/EditModal";
+import BASE_URL from "../../config/api";
 
 type CardProps = {
   image: string;
@@ -36,6 +37,8 @@ const Card: React.FC<CardProps> = ({
   const [longitude, setLongitude] = useState("");
   const [latitude, setLatitude] = useState("");
   const [category, setCategory] = useState("");
+  const [attraction, setAttraction] = useState<any>(null);
+
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -48,7 +51,7 @@ const Card: React.FC<CardProps> = ({
 
   const handleDeleteAction = async () => {
     try {
-      await axios.delete(`http://localhost:5241/api/tourist_attractions/${id}`);
+      await axios.delete(`${BASE_URL}/tourist_attractions/${id}`);
       setIsDeleted(true);
       setIsModalOpen(false);
     } catch (error) {
@@ -56,55 +59,74 @@ const Card: React.FC<CardProps> = ({
     }
   };
 
-  const handleEditClick = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsEditModalOpen(true);
+  const handleUpdateAttraction = async (
+  imagesToDelete: string[],
+  newImages: File[]
+) => {
+  try {
+    console.log('tr');
+    const formData = new FormData();
 
-    try {
-      const response = await axios.get(
-        `http://localhost:5241/api/tourist_attractions/${id}`
-      );
-      const data = response.data;
+    formData.append("name", name);
+    formData.append("description", desc);
+    formData.append("longitude", longitude);
+    formData.append("latitude", latitude);
+    formData.append("category", category);
 
-      setName(data.name);
-      setDesc(data.description);
-      setLongitude(data.longitude);
-      setLatitude(data.latitude);
-      setCategory(data.category);
-    } catch (error) {
-      console.error("Error fetching attraction details:", error);
+    imagesToDelete.forEach((img) =>
+      formData.append("ImagesToDelete", img)
+    );
+
+    newImages.forEach((file) =>
+      formData.append("NewImages", file)
+    );
+
+    const response = await axios.put(
+      `${BASE_URL}/tourist_attractions/${id}`,
+      formData,
+    );
+
+    setAttraction(response.data);
+    setIsEditModalOpen(false);
+
+    if (onUpdate) {
+      onUpdate(response.data);
     }
-  };
+  } catch (error) {
+    console.log('gr')
+    console.error("Error updating attraction:", error);
+  }
+};
+
+
+const handleEditClick = async (e: React.MouseEvent) => {
+  e.preventDefault();
+  setIsEditModalOpen(true);
+
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/tourist_attractions/${id}`
+    );
+
+    const data = response.data;
+    setAttraction(data);
+
+    setName(data.name);
+    setDesc(data.description);
+    setLongitude(data.longitude);
+    setLatitude(data.latitude);
+    setCategory(data.category);
+  } catch (error) {
+    console.error("Error fetching attraction details:", error);
+  }
+};
+
 
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
   };
 
-  const handleEditAction = async () => {
-    try {
-      console.log("proba");
-
-      const response = await axios.put(
-        `http://localhost:5241/api/tourist_attractions/${id}`,
-        {
-          name,
-          description: desc,
-          longitude,
-          latitude,
-          category,
-        }
-      );
-
-      if (onUpdate) {
-        onUpdate(response.data);
-      }
-
-      setIsEditModalOpen(false);
-      console.log(response.data);
-    } catch (error) {
-      console.error("Error updating attraction:", error);
-    }
-  };
+  
 
   if (isDeleted) return null;
 
@@ -157,23 +179,25 @@ const Card: React.FC<CardProps> = ({
         />
       )}
 
-      {isEditModalOpen && (
-        <EditModal
-          title="Izmeni"
-          name={name}
-          description={desc}
-          longitude={longitude}
-          latitude={latitude}
-          category={category}
-          onClose={handleCloseEditModal}
-          onSave={handleEditAction}
-          setName={setName}
-          setDesc={setDesc}
-          setLongitude={setLongitude}
-          setLatitude={setLatitude}
-          setCategory={setCategory}
-        />
-      )}
+      {isEditModalOpen && attraction && (
+  <EditModal
+    title="Izmena atrakcije"
+    name={name}
+    description={desc}
+    longitude={longitude}
+    latitude={latitude}
+    category={category}
+    photos={attraction.photos}
+    onSave={handleUpdateAttraction}
+    onClose={handleCloseEditModal}
+    setName={setName}
+    setDesc={setDesc}
+    setLongitude={setLongitude}
+    setLatitude={setLatitude}
+    setCategory={setCategory}
+  />
+)}
+
     </div>
   );
 };

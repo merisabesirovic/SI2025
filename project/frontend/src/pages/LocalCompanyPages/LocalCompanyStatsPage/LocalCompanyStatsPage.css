@@ -1,0 +1,147 @@
+.stats-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: "Figtree", sans-serif;
+  color: #2b2a27;
+}
+
+.stats-header h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.stats-header p {
+  margin: 8px 0 0;
+  color: #6b6258;
+}
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.stats-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stats-label {
+  font-size: 0.95rem;
+  color: #6b6258;
+  margin-bottom: 6px;
+}
+
+.stats-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.stats-section {
+  background: #fff7f0;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stats-section h2 {
+  margin: 0 0 16px;
+  font-size: 1.2rem;
+}
+
+.rating-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rating-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
+.rating-stars {
+  font-size: 0.95rem;
+}
+
+.rating-count {
+  font-weight: 700;
+  color: #4a69bd;
+}
+
+.latest-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.review-item {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.review-user {
+  font-weight: 600;
+}
+
+.review-rating {
+  font-size: 0.9rem;
+}
+
+.review-comment {
+  color: #3c3c3c;
+  margin-bottom: 6px;
+}
+
+.review-date {
+  font-size: 0.85rem;
+  color: #8a8177;
+}
+
+.stats-loading,
+.stats-error,
+.stats-empty {
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  color: #6b6258;
+}
+
+@media screen and (max-width: 768px) {
+  .stats-page {
+    padding: 30px 16px;
+  }
+
+  .stats-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .stats-section {
+    padding: 16px;
+  }
+}

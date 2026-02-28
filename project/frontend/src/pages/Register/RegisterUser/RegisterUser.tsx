@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import BASE_URL from "../../../config/api";
 import styled from "styled-components";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../../components/Loader/Loader";
 
@@ -60,7 +60,7 @@ const RegisterUser = () => {
     } catch (error: any) {
       console.error("Error during registration:", error.response || error);
       if (error.response && error.response.data) {
-        toast.error(`Error: ${error.response.data.message}`);
+        toast.error(`Error: ${error.response.data[0].description}`);
       } else {
         toast.error("Unexpected error occurred.");
       }
@@ -76,7 +76,7 @@ const RegisterUser = () => {
         <p className="form-title">Registrujte se</p>
         <div className="input-container">
           <input
-            placeholder="Korisničko ime"
+            placeholder="Korisničko ime (bez razmaka)"
             type="text"
             required
             value={userInput.username}
@@ -172,11 +172,6 @@ const RegisterUser = () => {
         </p>
       </form>
 
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        hideProgressBar
-      />
     </StyledWrapper>
   );
 };

@@ -3,16 +3,9 @@ import axios from "axios";
 import styled from "styled-components";
 import Card from "../../../components/Card/Card";
 import Loader from "../../../components/Loader/Loader";
+import { Attraction } from "../../../types/Attraction";
+import BASE_URL from "../../../config/api";
 
-type Attraction = {
-  id: string;
-  name: string;
-  description: string;
-  photos: string;
-  category: string;
-  reviews?: { rating: number }[]; // Assuming each review has a `rating` field
-  averageRating?: number; // Adding this field for calculated average rating
-};
 
 const AllAttractions: React.FC = () => {
   const [attractions, setAttractions] = useState<Attraction[]>([]);
@@ -31,7 +24,7 @@ const AllAttractions: React.FC = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        "http://localhost:5241/api/tourist_attractions",
+        `${BASE_URL}/tourist_attractions`,
         {
           params: {
             Category: category || undefined,
@@ -156,7 +149,7 @@ const AllAttractions: React.FC = () => {
             <Card
               key={attraction.id}
               id={attraction.id}
-              image={attraction.photos.split(",")[0]}
+              image={attraction.photos[0]}
               title={attraction.name}
               description={attraction.description.slice(0, 100).concat("...")}
               show={true}

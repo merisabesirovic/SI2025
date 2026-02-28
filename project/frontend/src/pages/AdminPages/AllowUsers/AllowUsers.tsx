@@ -3,6 +3,7 @@ import axios from "axios";
 import { AppContext } from "../../../context/AppContext";
 import Loader from "../../../components/Loader/Loader";
 import "./AllowUsers.css";
+import BASE_URL from "../../../config/api";
 
 type User = {
   id: string;
@@ -19,8 +20,8 @@ const AllowUsers = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const apiBaseUrl = "http://localhost:5241/api/users";
-  const approveUserUrl = "http://localhost:5241/api/account/approve-user";
+  const apiBaseUrl = `${BASE_URL}/users`;
+  const approveUserUrl = `${BASE_URL}/account/approve-user`;
   const { token } = useContext(AppContext);
 
   useEffect(() => {

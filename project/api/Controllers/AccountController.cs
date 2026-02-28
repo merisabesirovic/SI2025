@@ -22,14 +22,16 @@ namespace api.Controllers
     private readonly SignInManager<User> _signInManager;
     private readonly RoleManager<IdentityRole> _roleManager; // Inject RoleManager
     private readonly EmailService _emailService;
+    private readonly IConfiguration _configuration;
 
-    public AccountController(UserManager<User> userManager, ITokenService tokenService, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager, EmailService emailService)
+    public AccountController(UserManager<User> userManager, ITokenService tokenService, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager, EmailService emailService, IConfiguration configuration)
     {
         _userManager = userManager;
         _tokenService = tokenService;
         _signInManager = signInManager;
         _roleManager = roleManager; // Assign RoleManager
         _emailService = emailService;
+        _configuration = configuration;
     }
 
  [HttpPost("register")]
@@ -193,14 +195,43 @@ public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto for
 }
 
 [HttpGet("reset-password")]
+[Produces("text/html")]
 public IActionResult ResetPasswordPage(string email, string token)
 {
-    // Return a simple message for now (can be replaced with a proper page).
-    return Ok(new
-    {
-        Message = $"Token za promenu lozinke: {token}",
-      
-    });
+    var encodedEmail = System.Net.WebUtility.UrlEncode(email ?? string.Empty);
+    var encodedToken = System.Net.WebUtility.UrlEncode(token ?? string.Empty);
+    var frontendBaseUrl = _configuration["Frontend:BaseUrl"] ?? "http://localhost:3000";
+    var frontendUrl = $"{frontendBaseUrl.TrimEnd('/')}/reset_password?email={encodedEmail}&token={encodedToken}";
+
+    var html = $@"
+        <!DOCTYPE html>
+        <html lang=""sr"">
+        <head>
+            <meta charset=""UTF-8"" />
+            <title>Reset lozinke</title>
+            <style>
+                body {{ font-family: Arial, sans-serif; background:#f7f7f7; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }}
+                .card {{ background:white; padding:24px 28px; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.12); max-width:420px; width:90%; text-align:center; }}
+                h1 {{ margin:0 0 12px; color:#0b3c5d; font-size:22px; }}
+                p {{ margin:0 0 16px; color:#4a5568; line-height:1.5; }}
+                a.button {{ display:inline-block; background:#e43b39; color:white; padding:12px 18px; border-radius:8px; text-decoration:none; font-weight:600; }}
+                .token {{ word-break:break-all; font-size:13px; color:#2d3748; background:#f1f5f9; padding:10px; border-radius:8px; }}
+            </style>
+        </head>
+        <body>
+            <div class=""card"">
+                <h1>Reset lozinke</h1>
+                <p>Kliknite na dugme ispod da otvorite stranicu za promenu lozinke. Kod je već ubačen.</p>
+                <p><a class=""button"" href=""{frontendUrl}"">Otvori formu</a></p>
+                <p>Ako dugme ne radi, kopirajte ovaj kod i nalepite ga u formu:</p>
+                <div class=""token"">{token}</div>
+            </div>
+        </body>
+        </html>";
+
+    Response.ContentType = "text/html; charset=utf-8";
+    Response.Headers["X-Content-Type-Options"] = "nosniff";
+    return Content(html, "text/html; charset=utf-8");
 }
 [HttpPost("reset-password")]
 public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)

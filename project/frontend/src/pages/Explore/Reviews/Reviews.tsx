@@ -11,7 +11,9 @@ import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import Modal from "../../../components/Modal/Modal";
 import { AppContext } from "../../../context/AppContext";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
+import { Review } from "../../../types/Attraction";
+import BASE_URL from "../../../config/api";
 
 const MAX_COMMENT_LENGTH = 150;
 const responsive = {
@@ -44,13 +46,7 @@ const customIcons: Record<number, { icon: JSX.Element; label: string }> = {
   },
 };
 
-type Review = {
-  id: number;
-  rating: number;
-  comment: string;
-  createdOn: string;
-  createdBy: string;
-};
+
 type ReviewsProps = {
   attractionId: string;
   initialReviews?: Review[];
@@ -66,6 +62,7 @@ const Reviews: React.FC<ReviewsProps> = ({
   const [newReview, setNewReview] = useState({ rating: 0, comment: "" });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReviewId, setSelectedReviewId] = useState<number | null>(null);
+  const [alreadyReviewed, setAlreadyReviewed] = useState<boolean>(false);
   const { token, userRole } = useContext(AppContext);
   const username = localStorage.getItem("username");
   const axiosInstance = axios.create({
@@ -83,11 +80,24 @@ const Reviews: React.FC<ReviewsProps> = ({
     }
     setNewReview((prev) => ({ ...prev, comment: value }));
   };
+
+  useEffect(() => {
+    if (!username) return;
+    const hasReview = reviews.some(
+      (review) => review.createdBy === username
+    );
+    setAlreadyReviewed(hasReview);
+  }, [reviews, username]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (alreadyReviewed) {
+      toast.info("Već ste poslali recenziju za ovu atrakciju.");
+      return;
+    }
     try {
       const response = await axiosInstance.post(
-        `http://localhost:5241/api/comment/${attractionId}`,
+        `${BASE_URL}/comment/${attractionId}`,
         newReview
       );
       const savedReview = response.data;
@@ -100,8 +110,15 @@ const Reviews: React.FC<ReviewsProps> = ({
           createdBy: username || "You",
         },
       ]);
-    } catch (error) {
+      setAlreadyReviewed(true);
+    } catch (error: any) {
       console.error("Error posting review:", error);
+      const message =
+        error?.response?.data || "Ne možete poslati još jednu recenziju.";
+      toast.error(message);
+      if (error?.response?.status === 400 || error?.response?.status === 409) {
+        setAlreadyReviewed(true);
+      }
     }
   };
 
@@ -116,7 +133,7 @@ const Reviews: React.FC<ReviewsProps> = ({
     ) {
       try {
         await axiosInstance.delete(
-          `http://localhost:5241/api/comment/${reviewId}`
+          `${BASE_URL}/comment/${reviewId}`
         );
         setReviews((prevReviews) =>
           prevReviews.filter((review) => review.id !== reviewId)
@@ -194,6 +211,7 @@ const Reviews: React.FC<ReviewsProps> = ({
                 <Rating
                   name="rating"
                   value={newReview.rating}
+                  disabled={alreadyReviewed}
                   onChange={(e, value) =>
                     setNewReview({ ...newReview, rating: value || 0 })
                   }
@@ -219,12 +237,18 @@ const Reviews: React.FC<ReviewsProps> = ({
                 placeholder="Opišite svoje iskustvo ovde..."
                 value={newReview.comment}
                 onChange={handleCommentChange}
+                disabled={alreadyReviewed}
                 required
               ></textarea>
               <p className="char-counter">
                 {newReview.comment.length}/{MAX_COMMENT_LENGTH}
               </p>
-              <button type="submit" className="submit">
+              {alreadyReviewed && (
+                <p className="already-reviewed">
+                  Već ste poslali recenziju za ovu atrakciju.
+                </p>
+              )}
+              <button type="submit" className="submit" disabled={alreadyReviewed}>
                 Sačuvaj
               </button>
             </>
@@ -235,7 +259,6 @@ const Reviews: React.FC<ReviewsProps> = ({
           )}
         </form>
       )}
-      <ToastContainer />
 
       {isModalOpen && selectedReviewId !== null && (
         <Modal
@@ -353,6 +376,11 @@ const StyledWrapper = styled("div")`
     padding: 10px;
     background-color: #f1f1f1;
     text-align: center;
+  }
+  .already-reviewed {
+    color: #e43b39;
+    font-weight: 600;
+    margin: 0 0 8px 0;
   }
     @media (max-width: 920px) {
     .empty-reviews{

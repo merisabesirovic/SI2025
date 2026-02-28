@@ -1,9 +1,9 @@
 import React, { useContext, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { ToastContainer } from "react-toastify";
 import "./CreateAttraction.css";
 import { AppContext } from "../../../context/AppContext";
+import BASE_URL from "../../../config/api";
 
 const CreateAttraction = () => {
   const [formData, setFormData] = useState<{
@@ -74,7 +74,7 @@ const CreateAttraction = () => {
       }
 
       await axios.post(
-        `http://localhost:5241/api/tourist_attractions/create/${userId}`,
+        `${BASE_URL}/tourist_attractions/create/${userId}`,
         form,
         {
           headers: {
@@ -186,7 +186,6 @@ const CreateAttraction = () => {
           {loading ? "Kreiranje..." : "Kreiraj"}
         </button>
       </form>
-      <ToastContainer />
     </div>
   );
 };

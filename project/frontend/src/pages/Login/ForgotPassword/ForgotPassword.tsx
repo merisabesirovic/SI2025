@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import BASE_URL from "../../../config/api";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
@@ -58,11 +58,6 @@ const ForgotPassword = () => {
           Pošalji
         </button>
       </form>
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        hideProgressBar
-      />
     </StyledWrapper>
   );
 };

@@ -1,5 +1,6 @@
 using System.Text.Json;
-using Amazon.S3;
+using DotNetEnv;
+// using Amazon.S3;
 using api.Data;
 using api.Interfaces;
 using api.Models;
@@ -12,9 +13,28 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using CloudinaryDotNet;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+// Load environment variables from local .env files (if present).
+var envCandidates = new[]
+{
+    Path.Combine(builder.Environment.ContentRootPath, ".env"),
+    Path.Combine(Directory.GetParent(builder.Environment.ContentRootPath)?.FullName ?? builder.Environment.ContentRootPath, ".env")
+};
+
+foreach (var envPath in envCandidates.Distinct())
+{
+    if (File.Exists(envPath))
+    {
+        Env.Load(envPath);
+    }
+}
+
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables();
 
 
 
@@ -60,12 +80,22 @@ builder.Services.AddSwaggerGen(option =>
 
 builder.Services.AddTransient<EmailService>();
 
-builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
-builder.Services.AddAWSService<IAmazonS3>();
+// builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+// builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // Limit file size to 10 MB
 });
+
+var cloudinarySettings = builder.Configuration.GetSection("Cloudinary");
+var account = new Account(
+    cloudinarySettings["CloudName"],
+    cloudinarySettings["ApiKey"],
+    cloudinarySettings["ApiSecret"]
+);
+builder.Services.AddSingleton(new Cloudinary(account));
+
+builder.Services.AddScoped<ImageService>();
 
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
@@ -99,13 +129,17 @@ builder.Services.AddAuthentication(options => {
         ValidateAudience = true,
         ValidAudience = builder.Configuration["JWT:Audience"],
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigninKey"]))
+        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigninKey"])),
+        RoleClaimType = System.Security.Claims.ClaimTypes.Role,
+        NameClaimType = System.Security.Claims.ClaimTypes.NameIdentifier
     };
 });
 builder.Services.AddScoped<ITouristAttractionInterface, TouristAttractionRepository>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPortfolioRepository, PortfolioRepository>();
+builder.Services.AddScoped<IAttractionStatsService, AttractionStatsService>();
+builder.Services.AddMemoryCache();
 
 
 

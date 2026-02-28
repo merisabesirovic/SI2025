@@ -7,14 +7,41 @@
   align-items: center;
 }
 .favs {
+  width: 100%;
+  max-width: 100%;
   height: 100%;
   padding: 30px;
   margin-right: auto;
   margin-left: auto;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 .favs h2 {
   margin: -20px 0 20 0px;
 }
-.carousel-container {
-  padding-bottom: 30px;
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 20px;
+}
+
+.favorite-grid-item {
+  display: flex;
+  justify-content: center;
+}
+
+.favorites-empty {
+  width: 100%;
+  text-align: center;
+  color: #6b6258;
+  padding: 16px 0;
+}
+
+@media screen and (max-width: 768px) {
+  .favorites-grid {
+    grid-template-columns: 1fr;
+  }
 }

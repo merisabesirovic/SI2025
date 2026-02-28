@@ -51,19 +51,19 @@ namespace api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "ca33d7c2-2c60-4a8f-96bc-5949f727124c",
+                            Id = "28292fc3-0f27-4b0b-a131-d91be7ca0900",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "b1161fda-3e09-4e1b-aeaa-194ca5239f4f",
+                            Id = "4928140b-cb88-468d-80e1-0229d87318a8",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "56214309-7f80-4968-8f34-2b5c502a7c1a",
+                            Id = "e5d5f5da-73d0-47e7-8cdd-71bbcbf0a049",
                             Name = "Local_company",
                             NormalizedName = "LOCAL_COMPANY"
                         });
@@ -258,6 +258,9 @@ namespace api.Migrations
                     b.Property<string>("Photos")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

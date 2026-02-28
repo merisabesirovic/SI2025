@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import BASE_URL from "../../../config/api";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../../components/Loader/Loader";
 type Props = {};
@@ -177,7 +177,6 @@ const RegisterCompany = () => {
           Već imate nalog? <a href="/login">Ulogujte se ovde.</a>
         </p>
       </form>
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
     </StyledWrapper>
   );
 };

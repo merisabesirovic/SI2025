@@ -1,6 +1,7 @@
 import React from "react";
 import "./App.css";
 import { ToastContainer } from "react-toastify";
+import { createPortal } from "react-dom";
 import "react-toastify/dist/ReactToastify.css";
 import Welcome from "./pages/Welcome/Welcome";
 import Login from "./pages/Login/Login";
@@ -24,12 +25,27 @@ import AllAttractions from "./pages/AdminPages/AllAttractions/AllAttractions";
 import HomePage from "./pages/LocalCompanyPages/HomePage.tsx/HomePage";
 import ScrollToTop from "./components/Helpers/ScrollToTop";
 import AboutUs from "./pages/AboutUs/AboutUs";
+import LocalCompanyStatsPage from "./pages/LocalCompanyPages/LocalCompanyStatsPage/LocalCompanyStatsPage";
 function App() {
   return (
     <div className="App">
       <div className="Navbar">
         <Navbar />
       </div>
+      {createPortal(
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          newestOnTop
+          closeOnClick
+          pauseOnFocusLoss
+          pauseOnHover
+          draggable
+          limit={3}
+          className="app-toast-container"
+        />,
+        document.body
+      )}
       <div className="Content">
         <ScrollToTop />
         <Routes>
@@ -53,6 +69,7 @@ function App() {
           <Route path="/kreiraj" element={<CreateAttraction />} />
           <Route path="/pregled-atrakcija" element={<AllAttractions />} />
           <Route path="/home_local" element={<HomePage />} />
+          <Route path="/local_company/stats" element={<LocalCompanyStatsPage />} />
           <Route path="/aboutus" element={<AboutUs></AboutUs>} />
         </Routes>
       </div>
