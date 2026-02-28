@@ -1,0 +1,59 @@
+databases:
+  - name: npclick-db
+    databaseName: npclick
+    user: npclick
+    plan: free
+
+services:
+  - type: web
+    name: npclick-api
+    runtime: docker
+    rootDir: api
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/tourist_attractions
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://+:8080
+      - key: ConnectionStrings__DefaultConnection
+        fromDatabase:
+          name: npclick-db
+          property: connectionString
+      - key: JWT__Issuer
+        sync: false
+      - key: JWT__Audience
+        sync: false
+      - key: JWT__SigninKey
+        sync: false
+      - key: EmailSettings__SmtpServer
+        sync: false
+      - key: EmailSettings__Port
+        value: "587"
+      - key: EmailSettings__EnableSsl
+        value: "true"
+      - key: EmailSettings__Username
+        sync: false
+      - key: EmailSettings__Password
+        sync: false
+      - key: EmailSettings__FromEmail
+        sync: false
+      - key: Cloudinary__CloudName
+        sync: false
+      - key: Cloudinary__ApiKey
+        sync: false
+      - key: Cloudinary__ApiSecret
+        sync: false
+      - key: Frontend__BaseUrl
+        sync: false
+
+  - type: static
+    name: npclick-frontend
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: build
+    plan: free
+    envVars:
+      - key: REACT_APP_API_BASE_URL
+        value: https://npclick-api.onrender.com/api
