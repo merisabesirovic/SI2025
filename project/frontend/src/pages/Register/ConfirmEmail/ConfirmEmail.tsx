@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 import "./ConfirmEmail.css";
 
 type Props = {};
@@ -51,7 +52,7 @@ const Card = () => {
             <p className="message">
               Nakon potvrde email adrese možete se ulogovati{" "}
               <b>
-                <a href="/login">ovde</a>
+                <Link to="/login">ovde</Link>
               </b>
             </p>
           </div>

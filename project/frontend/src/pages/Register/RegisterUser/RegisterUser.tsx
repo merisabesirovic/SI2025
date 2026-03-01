@@ -3,7 +3,7 @@ import axios from "axios";
 import BASE_URL from "../../../config/api";
 import styled from "styled-components";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Loader from "../../../components/Loader/Loader";
 
 const RegisterUser = () => {
@@ -164,11 +164,11 @@ const RegisterUser = () => {
         </button>
 
         <p className="signup-link">
-          Već imate nalog? <a href="/login">Ulogujte se ovde</a>
+          Već imate nalog? <Link to="/login">Ulogujte se ovde</Link>
         </p>
         <p className="signup-link">
           Ukoliko želite da kreirate nalog za svoje preduzeće{" "}
-          <a href="/register_company">Registrujte ga ovde</a>
+          <Link to="/register_company">Registrujte ga ovde</Link>
         </p>
       </form>
 
@@ -276,3 +276,4 @@ const StyledWrapper = styled.div`
   }
 `;
 export default RegisterUser;
+

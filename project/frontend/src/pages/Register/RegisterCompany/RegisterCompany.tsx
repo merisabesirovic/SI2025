@@ -3,7 +3,7 @@ import styled from "styled-components";
 import axios from "axios";
 import BASE_URL from "../../../config/api";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Loader from "../../../components/Loader/Loader";
 type Props = {};
 
@@ -174,7 +174,7 @@ const RegisterCompany = () => {
           Submit
         </button>
         <p className="signup-link">
-          Već imate nalog? <a href="/login">Ulogujte se ovde.</a>
+          Već imate nalog? <Link to="/login">Ulogujte se ovde.</Link>
         </p>
       </form>
     </StyledWrapper>
@@ -283,3 +283,4 @@ const StyledWrapper = styled.div`
 `;
 
 export default RegisterCompany;
+

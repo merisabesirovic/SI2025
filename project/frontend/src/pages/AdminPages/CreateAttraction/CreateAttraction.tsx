@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import "./CreateAttraction.css";
 import { AppContext } from "../../../context/AppContext";
 import BASE_URL from "../../../config/api";
+import { useNavigate } from "react-router-dom";
 
 const CreateAttraction = () => {
   const [formData, setFormData] = useState<{
@@ -18,12 +19,13 @@ const CreateAttraction = () => {
     description: "",
     longitude: "",
     latitude: "",
-    category: "Islamic",
+    category: "islamic",
     files: [],
   });
 
   const [loading, setLoading] = useState(false);
   const { userId, userRole } = useContext(AppContext);
+  const navigate = useNavigate();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -89,11 +91,11 @@ const CreateAttraction = () => {
         description: "",
         longitude: "",
         latitude: "",
-        category: "Islamic",
+        category: "islamic",
         files: [],
       });
       if (userRole === "Local_company") {
-        window.location.reload();
+        navigate("/home_local");
       }
     } catch (error) {
       console.error("Error creating attraction:", error);
@@ -191,3 +193,4 @@ const CreateAttraction = () => {
 };
 
 export default CreateAttraction;
+
