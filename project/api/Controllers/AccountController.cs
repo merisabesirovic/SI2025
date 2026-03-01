@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using Microsoft.Extensions.Logging;
 
 namespace api.Controllers
 {   [Route("api/account")]
@@ -24,8 +25,9 @@ namespace api.Controllers
     private readonly RoleManager<IdentityRole> _roleManager; // Inject RoleManager
     private readonly EmailService _emailService;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<AccountController> _logger;
 
-    public AccountController(UserManager<User> userManager, ITokenService tokenService, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager, EmailService emailService, IConfiguration configuration)
+    public AccountController(UserManager<User> userManager, ITokenService tokenService, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager, EmailService emailService, IConfiguration configuration, ILogger<AccountController> logger)
     {
         _userManager = userManager;
         _tokenService = tokenService;
@@ -33,6 +35,7 @@ namespace api.Controllers
         _roleManager = roleManager; // Assign RoleManager
         _emailService = emailService;
         _configuration = configuration;
+        _logger = logger;
     }
 
     private string GetApiBaseUrl()
@@ -117,6 +120,7 @@ public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     }
     catch (Exception ex)
     {
+        _logger.LogError(ex, "Register failed for username {Username} and email {Email}", registerDto.Username, registerDto.Email);
         return StatusCode(500, ex.Message);
     }
 }
