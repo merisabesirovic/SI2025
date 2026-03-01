@@ -111,6 +111,7 @@ const Reviews: React.FC<ReviewsProps> = ({
         },
       ]);
       setAlreadyReviewed(true);
+      toast.success("Recenzija je uspešno sačuvana.");
     } catch (error: any) {
       console.error("Error posting review:", error);
       const message =

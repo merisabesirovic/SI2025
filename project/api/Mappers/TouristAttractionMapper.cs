@@ -30,7 +30,7 @@ namespace api.Mappers
                 Description = touristAttractionDto.Description,
                 Longitude = touristAttractionDto.Longitude,
                 Latitude = touristAttractionDto.Latitude,
-                Category = touristAttractionDto.Category
+                Category = touristAttractionDto.Category.Trim().ToLowerInvariant()
             };
         }
     }

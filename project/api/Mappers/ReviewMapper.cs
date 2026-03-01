@@ -26,6 +26,7 @@ namespace api.Mappers
     {
         Rating = reviewDto.Rating,
         Comment = reviewDto.Comment,
+        CreatedOn = DateTime.UtcNow,
         TouristAttractionId = touristAttractionId, // Only set the ID
         TouristAttraction = null // Ensure the navigation property is null
 

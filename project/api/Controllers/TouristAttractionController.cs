@@ -68,7 +68,10 @@ public async Task<IActionResult> Update(
     // Update basic fields
     attraction.Name = updateDto.Name ?? attraction.Name;
     attraction.Description = updateDto.Description ?? attraction.Description;
-    attraction.Category = updateDto.Category ?? attraction.Category;
+    if (!string.IsNullOrWhiteSpace(updateDto.Category))
+    {
+        attraction.Category = updateDto.Category.Trim().ToLowerInvariant();
+    }
     attraction.Longitude = updateDto.Longitude ?? attraction.Longitude;
     attraction.Latitude = updateDto.Latitude ?? attraction.Latitude;
 

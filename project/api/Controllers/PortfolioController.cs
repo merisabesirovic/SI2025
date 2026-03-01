@@ -6,6 +6,7 @@ using api.Extensions;
 using api.Interfaces;
 using api.Models;
 using api.Repositories;
+using api.Mappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +37,8 @@ namespace api.Controllers
             var username = User.GetUsername();
             var appUser = await _userManager.FindByNameAsync(username);
             var userPortfolio = await  _portfolioRepository.GetUserPortfolio(appUser);
-            return Ok(userPortfolio);
+            var userPortfolioDto = userPortfolio.Select(x => x.ToAttractionDto()).ToList();
+            return Ok(userPortfolioDto);
         }
         [HttpPost]
         [Authorize]

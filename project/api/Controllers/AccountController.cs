@@ -11,11 +11,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace api.Controllers
 {   [Route("api/account")]
     [ApiController]
-  public class AccountController : ControllerBase
+ public class AccountController : ControllerBase
 {
     private readonly UserManager<User> _userManager;
     private readonly ITokenService _tokenService;
@@ -32,6 +33,17 @@ namespace api.Controllers
         _roleManager = roleManager; // Assign RoleManager
         _emailService = emailService;
         _configuration = configuration;
+    }
+
+    private string GetApiBaseUrl()
+    {
+        var configuredBaseUrl = _configuration["Api:BaseUrl"];
+        if (!string.IsNullOrWhiteSpace(configuredBaseUrl))
+        {
+            return configuredBaseUrl.TrimEnd('/');
+        }
+
+        return $"{Request.Scheme}://{Request.Host}".TrimEnd('/');
     }
 
  [HttpPost("register")]
@@ -58,8 +70,9 @@ public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
 
         // Generate email confirmation token
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
-        var confirmationLink = Url.Action("ConfirmEmail", "Account", 
-            new { UserName = appUser.UserName, token = token }, Request.Scheme);
+        var encodedUserName = WebUtility.UrlEncode(appUser.UserName);
+        var encodedToken = WebUtility.UrlEncode(token);
+        var confirmationLink = $"{GetApiBaseUrl()}/api/account/confirm-email?userName={encodedUserName}&token={encodedToken}";
         
 
    
@@ -184,8 +197,9 @@ public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto for
     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
   
-    var resetLink = Url.Action("ResetPassword", "Account",
-        new { email = forgotPasswordDto.Email, token = token }, Request.Scheme);
+    var encodedEmail = WebUtility.UrlEncode(forgotPasswordDto.Email);
+    var encodedToken = WebUtility.UrlEncode(token);
+    var resetLink = $"{GetApiBaseUrl()}/api/account/reset-password?email={encodedEmail}&token={encodedToken}";
 
     // Send the email
     var emailBody = $"Please reset your password by clicking <a href='{resetLink}'>here</a>.";

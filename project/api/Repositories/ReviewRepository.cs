@@ -19,6 +19,14 @@ namespace api.Repositories
 
     public async Task<Review> CreateAsync(Review reviewModel)
 {
+    // Npgsql expects UTC for timestamp with time zone.
+    reviewModel.CreatedOn = reviewModel.CreatedOn.Kind switch
+    {
+        DateTimeKind.Utc => reviewModel.CreatedOn,
+        DateTimeKind.Local => reviewModel.CreatedOn.ToUniversalTime(),
+        _ => DateTime.SpecifyKind(reviewModel.CreatedOn, DateTimeKind.Utc)
+    };
+
     _context.Entry(reviewModel).Reference(r => r.TouristAttraction).IsModified = false;
 
     await _context.Reviews.AddAsync(reviewModel);

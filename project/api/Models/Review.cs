@@ -11,7 +11,7 @@ namespace api.Models
     public int Id { get; set; }
     public int Rating { get; set; }
     public string Comment { get; set; } = string.Empty;
-    public DateTime CreatedOn {get; set;} = DateTime.Now;
+    public DateTime CreatedOn {get; set;} = DateTime.UtcNow;
     public int? TouristAttractionId {get; set;} 
     public TouristAttraction TouristAttraction {get; set;} = new TouristAttraction();
     public string UserId {get; set;}

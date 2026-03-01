@@ -11,7 +11,7 @@ type PortfolioItem = {
   id: string;
   name: string;
   description: string;
-  photos: string;
+  photos: string[];
 };
 type Portfolio = PortfolioItem[];
 
@@ -91,7 +91,7 @@ const PortfolioFavorites = () => {
       <div className="favorites-grid">
         {portfolio && portfolio.length > 0 ? (
           portfolio.map((item) => {
-            const [firstPhoto] = item.photos.split(",");
+            console.log(item.photos)
             return (
               <div key={item.id} className="favorite-grid-item">
                 <FavoritesCard
@@ -99,7 +99,7 @@ const PortfolioFavorites = () => {
                   id={item.id}
                   name={item.name}
                   description={item.description}
-                  photos={firstPhoto}
+                  photos={item.photos?.[0] || ""}
                   onDelete={() => {
                     setSelectedItemName(item.name);
                     setModalOpen(true);

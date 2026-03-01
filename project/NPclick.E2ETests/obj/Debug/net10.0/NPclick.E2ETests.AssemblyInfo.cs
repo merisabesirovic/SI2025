@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NPclick.E2ETests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5f5d829c390d210658c8b6febbff1849e438b1f8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+55eef3513c860518199e2b6601cff02d06cc6b48")]
 [assembly: System.Reflection.AssemblyProductAttribute("NPclick.E2ETests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NPclick.E2ETests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
