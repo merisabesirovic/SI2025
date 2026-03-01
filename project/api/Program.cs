@@ -78,6 +78,7 @@ builder.Services.AddSwaggerGen(option =>
 }); 
 
 
+builder.Services.AddHttpClient();
 builder.Services.AddTransient<EmailService>();
 
 // builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());

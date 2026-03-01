@@ -1,8 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -12,14 +14,66 @@ public class EmailService
 {
     private readonly IConfiguration _configuration;
     private readonly ILogger<EmailService> _logger;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
+    public EmailService(IConfiguration configuration, ILogger<EmailService> logger, IHttpClientFactory httpClientFactory)
     {
         _configuration = configuration;
         _logger = logger;
+        _httpClientFactory = httpClientFactory;
     }
 
     public async Task SendEmailAsync(string toEmail, string subject, string body)
+    {
+        var resendApiKey = _configuration["Resend:ApiKey"];
+        if (!string.IsNullOrWhiteSpace(resendApiKey))
+        {
+            await SendViaResendAsync(toEmail, subject, body, resendApiKey);
+            return;
+        }
+
+        await SendViaSmtpAsync(toEmail, subject, body);
+    }
+
+    private async Task SendViaResendAsync(string toEmail, string subject, string body, string resendApiKey)
+    {
+        var defaultFromEmail = _configuration["EmailSettings:FromEmail"] ?? _configuration["EmailSettings:Username"];
+        var resendFromEmail = _configuration["Resend:FromEmail"] ?? defaultFromEmail;
+
+        if (string.IsNullOrWhiteSpace(resendFromEmail))
+        {
+            throw new InvalidOperationException("Resend is configured but sender email is missing (Resend:FromEmail or EmailSettings:FromEmail).");
+        }
+
+        var payload = new
+        {
+            from = resendFromEmail,
+            to = new[] { toEmail },
+            subject,
+            html = body
+        };
+
+        var client = _httpClientFactory.CreateClient();
+        client.BaseAddress = new Uri("https://api.resend.com/");
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", resendApiKey.Trim());
+
+        var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+        var response = await client.PostAsync("emails", content);
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        var responseBody = await response.Content.ReadAsStringAsync();
+        _logger.LogError(
+            "Resend send failed. Status={StatusCode}. Response={Response}",
+            (int)response.StatusCode,
+            responseBody
+        );
+        throw new InvalidOperationException($"Email sending failed via Resend. Status code: {(int)response.StatusCode}");
+    }
+
+    private async Task SendViaSmtpAsync(string toEmail, string subject, string body)
     {
         var smtpServer = _configuration["EmailSettings:SmtpServer"];
         var port = int.TryParse(_configuration["EmailSettings:Port"], out var parsedPort) ? parsedPort : 587;
