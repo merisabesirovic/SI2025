@@ -12,6 +12,9 @@ const RegisterUser = () => {
   const [message] = useState(
     "Lozinka mora imati jedno veliko slovo, 8 karaktera, jedan broj i jedan specijalni karakter"
   );
+  const [usernameMessage] = useState(
+    "Korisnicko ime mora biti malim slovima i bez razmaka."
+  );
   const [warning, setWarning] = useState("");
   const [userInput, setUserInput] = useState({
     username: "",
@@ -31,13 +34,26 @@ const RegisterUser = () => {
     return emailRegex.test(email);
   };
 
+  const isUsernameValid = (username: string) => {
+    if (!username) return false;
+    return /^[a-z0-9._-]+$/.test(username);
+  };
+
+  const normalizeUsername = (username: string) => {
+    return username.replace(/\s+/g, "").toLowerCase();
+  };
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
   useEffect(() => {
     const { username, email, password } = userInput;
-    if (username && isEmailValid(email) && isPasswordValid(password)) {
+    if (
+      isUsernameValid(username) &&
+      isEmailValid(email) &&
+      isPasswordValid(password)
+    ) {
       setEnabled(false);
     } else {
       setEnabled(true);
@@ -46,6 +62,10 @@ const RegisterUser = () => {
 
   const handleClick = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isUsernameValid(userInput.username)) {
+      toast.error(usernameMessage);
+      return;
+    }
     RegisterUser(userInput);
   };
 
@@ -80,9 +100,19 @@ const RegisterUser = () => {
             type="text"
             required
             value={userInput.username}
+            pattern="^[a-z0-9._-]+$"
+            title="Korisnicko ime mora biti malim slovima i bez razmaka."
             onChange={(e) =>
-              setUserInput((prev) => ({ ...prev, username: e.target.value }))
+              setUserInput((prev) => ({
+                ...prev,
+                username: normalizeUsername(e.target.value),
+              }))
             }
+            onBlur={() => {
+              if (!isUsernameValid(userInput.username)) {
+                toast.error(usernameMessage);
+              }
+            }}
           />
         </div>
 
