@@ -10,7 +10,7 @@ const RegisterUser = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [enabled, setEnabled] = useState(true);
   const [message] = useState(
-    "Lozinka mora imati jedno veliko slovo, 8 karaktera, jedan broj i jedan specijalni karakter"
+    "Lozinka mora imati jedno veliko slovo, 8 karaktera, jedan broj i jedan specijalni karakter ! @ # $ % ^ & *"
   );
   const [usernameMessage] = useState(
     "Korisnicko ime mora biti malim slovima i bez razmaka."
