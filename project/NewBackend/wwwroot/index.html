@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NewBackend Minimal Frontend</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #162033;
+      --muted: #5f6b85;
+      --line: #dbe3f2;
+      --primary: #2563eb;
+      --danger: #dc2626;
+      --ok: #16a34a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Segoe UI, Tahoma, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 24px auto;
+      padding: 0 16px;
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    label {
+      display: block;
+      margin-top: 8px;
+      margin-bottom: 4px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 10px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: #475569;
+    }
+
+    button.danger {
+      background: var(--danger);
+    }
+
+    .status {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      white-space: pre-wrap;
+    }
+
+    .status.ok {
+      color: var(--ok);
+    }
+
+    .status.err {
+      color: var(--danger);
+    }
+
+    .token {
+      font-size: 12px;
+      color: var(--muted);
+      word-break: break-all;
+      margin-top: 8px;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .task-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fbfdff;
+    }
+
+    .task-title {
+      margin: 0 0 4px;
+      font-size: 15px;
+    }
+
+    .task-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="card">
+      <h1>Taskovii</h1>
+      <div class="status" id="globalStatus">API base:</div>
+      <div class="token" id="tokenPreview">Not logged in</div>
+    </section>
+
+    <section class="card">
+      <h2>Register</h2>
+      <label>Username</label>
+      <input id="regUsername" placeholder="e.g. testuser" />
+      <label>Email</label>
+      <input id="regEmail" type="email" placeholder="e.g. test@example.com" />
+      <label>Password</label>
+      <input id="regPassword" type="password" placeholder="Password1!" />
+      <button id="btnRegister">Register</button>
+      <div class="status" id="registerStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>Login</h2>
+      <label>Username</label>
+      <input id="loginUsername" placeholder="e.g. testuser" />
+      <label>Password</label>
+      <input id="loginPassword" type="password" placeholder="Password1!" />
+      <button id="btnLogin">Login</button>
+      <button class="secondary" id="btnMe">Call /api/auth/me</button>
+      <button class="danger" id="btnLogout">Logout</button>
+      <div class="status" id="loginStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>Create Task</h2>
+      <label>Title</label>
+      <input id="taskTitle" placeholder="Task title" />
+      <label>Description</label>
+      <textarea id="taskDescription" placeholder="Task details"></textarea>
+      <label>Status</label>
+      <select id="taskStatus">
+        <option value="todo">todo</option>
+        <option value="in_progress">in_progress</option>
+        <option value="review">review</option>
+        <option value="done">done</option>
+      </select>
+      <button id="btnCreateTask">Create Task</button>
+      <button class="secondary" id="btnLoadTasks">Load My Tasks</button>
+      <div class="status" id="taskStatusBox"></div>
+    </section>
+
+    <section class="card">
+      <h2>My Tasks</h2>
+      <div class="task-list" id="taskList"></div>
+    </section>
+  </div>
+
+  <script>
+    const els = {
+      regUsername: document.getElementById("regUsername"),
+      regEmail: document.getElementById("regEmail"),
+      regPassword: document.getElementById("regPassword"),
+      btnRegister: document.getElementById("btnRegister"),
+      registerStatus: document.getElementById("registerStatus"),
+
+      loginUsername: document.getElementById("loginUsername"),
+      loginPassword: document.getElementById("loginPassword"),
+      btnLogin: document.getElementById("btnLogin"),
+      btnMe: document.getElementById("btnMe"),
+      btnLogout: document.getElementById("btnLogout"),
+      loginStatus: document.getElementById("loginStatus"),
+
+      taskTitle: document.getElementById("taskTitle"),
+      taskDescription: document.getElementById("taskDescription"),
+      taskStatus: document.getElementById("taskStatus"),
+      btnCreateTask: document.getElementById("btnCreateTask"),
+      btnLoadTasks: document.getElementById("btnLoadTasks"),
+      taskStatusBox: document.getElementById("taskStatusBox"),
+      taskList: document.getElementById("taskList"),
+
+      tokenPreview: document.getElementById("tokenPreview"),
+      globalStatus: document.getElementById("globalStatus")
+    };
+
+    const TOKEN_KEY = "newbackend_jwt";
+
+    function getToken() {
+      return localStorage.getItem(TOKEN_KEY);
+    }
+
+    function setToken(token) {
+      localStorage.setItem(TOKEN_KEY, token);
+      renderToken();
+    }
+
+    function clearToken() {
+      localStorage.removeItem(TOKEN_KEY);
+      renderToken();
+    }
+
+    function renderToken() {
+      const token = getToken();
+      els.tokenPreview.textContent = token
+        ? `JWT: ${token.substring(0, 42)}...`
+        : "Not logged in";
+    }
+
+    function setStatus(el, message, isError = false) {
+      el.textContent = message;
+      el.className = `status ${message ? (isError ? "err" : "ok") : ""}`;
+    }
+
+    async function api(path, options = {}, auth = false) {
+      const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+      if (auth) {
+        const token = getToken();
+        if (!token) {
+          throw new Error("You are not logged in.");
+        }
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const response = await fetch(path, { ...options, headers });
+      let body = null;
+      const text = await response.text();
+      if (text) {
+        try { body = JSON.parse(text); } catch { body = text; }
+      }
+      if (!response.ok) {
+        const message = body?.message || body?.title || JSON.stringify(body) || `HTTP ${response.status}`;
+        throw new Error(message);
+      }
+      return body;
+    }
+
+    async function register() {
+      try {
+        const payload = {
+          username: els.regUsername.value.trim(),
+          email: els.regEmail.value.trim(),
+          password: els.regPassword.value
+        };
+        const data = await api("/api/auth/register", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        setToken(data.token);
+        setStatus(els.registerStatus, "Registered successfully.");
+        setStatus(els.loginStatus, "Token received from register.");
+        await loadTasks();
+      } catch (err) {
+        setStatus(els.registerStatus, err.message, true);
+      }
+    }
+
+    async function login() {
+      try {
+        const payload = {
+          username: els.loginUsername.value.trim(),
+          password: els.loginPassword.value
+        };
+        const data = await api("/api/auth/login", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        setToken(data.token);
+        setStatus(els.loginStatus, "Logged in successfully.");
+        await loadTasks();
+      } catch (err) {
+        setStatus(els.loginStatus, err.message, true);
+      }
+    }
+
+    async function me() {
+      try {
+        const data = await api("/api/auth/me", { method: "GET" }, true);
+        setStatus(els.loginStatus, `You are ${data.username} (${data.email})`);
+      } catch (err) {
+        setStatus(els.loginStatus, err.message, true);
+      }
+    }
+
+    async function createTask() {
+      try {
+        const payload = {
+          title: els.taskTitle.value.trim(),
+          description: els.taskDescription.value.trim(),
+          status: els.taskStatus.value
+        };
+        await api("/api/tasks", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        }, true);
+        setStatus(els.taskStatusBox, "Task created.");
+        els.taskTitle.value = "";
+        els.taskDescription.value = "";
+        els.taskStatus.value = "todo";
+        await loadTasks();
+      } catch (err) {
+        setStatus(els.taskStatusBox, err.message, true);
+      }
+    }
+
+    async function deleteTask(id) {
+      try {
+        await api(`/api/tasks/${id}`, { method: "DELETE" }, true);
+        setStatus(els.taskStatusBox, `Task ${id} deleted.`);
+        await loadTasks();
+      } catch (err) {
+        setStatus(els.taskStatusBox, err.message, true);
+      }
+    }
+
+    async function loadTasks() {
+      try {
+        const tasks = await api("/api/tasks", { method: "GET" }, true);
+        renderTasks(tasks || []);
+      } catch (err) {
+        renderTasks([]);
+        setStatus(els.taskStatusBox, err.message, true);
+      }
+    }
+
+    function renderTasks(tasks) {
+      if (!tasks.length) {
+        els.taskList.innerHTML = "<div class='task-meta'>No tasks yet.</div>";
+        return;
+      }
+
+      els.taskList.innerHTML = "";
+      tasks.forEach((task) => {
+        const div = document.createElement("div");
+        div.className = "task-item";
+        div.innerHTML = `
+          <h3 class="task-title">${escapeHtml(task.title)}</h3>
+          <div class="task-meta">Status: ${escapeHtml(task.status)} | ID: ${task.id}</div>
+          <div>${escapeHtml(task.description || "")}</div>
+          <button class="danger" data-id="${task.id}">Delete</button>
+        `;
+        div.querySelector("button").addEventListener("click", () => deleteTask(task.id));
+        els.taskList.appendChild(div);
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    els.btnRegister.addEventListener("click", register);
+    els.btnLogin.addEventListener("click", login);
+    els.btnMe.addEventListener("click", me);
+    els.btnLogout.addEventListener("click", () => {
+      clearToken();
+      setStatus(els.loginStatus, "Logged out.");
+      renderTasks([]);
+    });
+    els.btnCreateTask.addEventListener("click", createTask);
+    els.btnLoadTasks.addEventListener("click", loadTasks);
+
+    renderToken();
+    if (getToken()) {
+      loadTasks();
+    }
+  </script>
+</body>
+</html>
